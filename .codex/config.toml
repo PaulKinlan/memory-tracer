@@ -4,3 +4,7 @@
 [mcp_servers.chrome-devtools]
 command = "npx"
 args = ["-y", "chrome-devtools-mcp", "--isolated", "--memory-debugging"]
+
+[mcp_servers.memory-tracer]
+command = "node"
+args = ["mcp/skills-server.mjs"]

@@ -23,6 +23,30 @@ Only the Claude copy is real; the rest are pointers, so the methodology can't
 drift between agents. (Windows checkouts may need the Codex symlink replaced
 with a copy.)
 
+## Skills over MCP
+
+[mcp/skills-server.mjs](../mcp/skills-server.mjs) additionally distributes
+the skill through MCP itself (registered in `.mcp.json`,
+`.gemini/settings.json`, `.codex/config.toml` as `memory-tracer`), exposing it
+two ways:
+
+- **An MCP prompt** — in hosts with prompt discovery this surfaces as a slash
+  command with no wrapper file at all: Claude Code shows it as
+  `/mcp__memory-tracer__memory-audit (MCP)`, Gemini CLI similarly; Codex
+  doesn't surface MCP prompts yet
+  ([openai/codex#8342](https://github.com/openai/codex/issues/8342)).
+- **A `skill://memory-audit/SKILL.md` resource** — the
+  [SEP-2640 Skills Extension](https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2640)
+  convention from the
+  [Skills Over MCP working group](https://modelcontextprotocol.io/community/skills-over-mcp/charter),
+  so hosts that adopt skills-over-MCP will auto-discover the skill with zero
+  config.
+
+Both read the same canonical SKILL.md at request time, so they can't drift.
+The file-based wrappers above remain the most reliable path today; the MCP
+route is what makes the skill portable beyond this repo (point any MCP client
+at the server and it has the workflow).
+
 # Batch runner
 
 ```sh

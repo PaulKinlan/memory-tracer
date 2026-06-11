@@ -8,6 +8,10 @@
         "--isolated",
         "--memory-debugging"
       ]
+    },
+    "memory-tracer": {
+      "command": "node",
+      "args": ["mcp/skills-server.mjs"]
     }
   }
 }

@@ -13,5 +13,9 @@
   "devDependencies": {
     "chrome-devtools-mcp": "^1.2.0",
     "puppeteer": "^25.1.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
   }
 }
