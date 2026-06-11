@@ -7,7 +7,7 @@
   "description": "Agent-driven memory leak auditing for websites via chrome-devtools-mcp",
   "scripts": {
     "playground": "npx -y serve playground -l 8080",
-    "batch": "node runner/run-batch.mjs --urls urls/sample.txt",
+    "batch": "node runner/run-batch.mjs",
     "aggregate": "node aggregate/aggregate.mjs"
   },
   "dependencies": {

@@ -59,14 +59,16 @@ npm run playground          # serves playground/ on http://localhost:8080
 #    and Antigravity when run from this repo (see runner/README.md)
 /memory-audit http://localhost:8080
 
-# 5. Batch mode — runs with Claude Code by default; also supports
+# 5. Batch mode — URLs as arguments or --urls <file> (defaults to
+#    urls/sample.txt). Runs with Claude Code by default; also supports
 #    --agent gemini | antigravity | codex (see runner/README.md for setup).
 #    Reports land in reports/<agent>/<site>/ for cross-agent comparison.
-node runner/run-batch.mjs --urls urls/sample.txt --concurrency 2
-node runner/run-batch.mjs --urls urls/sample.txt --agent gemini
+npm run batch -- https://example.com
+npm run batch -- --urls urls/sample.txt --concurrency 2
+npm run batch -- --urls urls/sample.txt --agent gemini
 
 # 6. Aggregate findings across reports
-node aggregate/aggregate.mjs
+npm run aggregate
 ```
 
 See [PLAN.md](PLAN.md) for the roadmap and open questions.

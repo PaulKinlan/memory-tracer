@@ -2,9 +2,13 @@
 /**
  * Batch memory audits: one headless agent run per URL.
  *
- *   node runner/run-batch.mjs --urls urls/sample.txt [--agent claude]
- *                             [--concurrency 2] [--out reports]
- *                             [--max-turns 80] [--dry-run] [--verbose]
+ *   npm run batch -- [urls...] [--urls <file>] [--agent claude]
+ *                    [--concurrency 2] [--out reports]
+ *                    [--max-turns 80] [--dry-run] [--verbose]
+ *
+ * URLs come from positional arguments, a --urls file, or both; with neither,
+ * urls/sample.txt is used if present. Invalid URLs are warned about and
+ * skipped; ending up with zero URLs is an error.
  *
  * --verbose streams agent stdout/stderr live, each line prefixed with the
  * site slug (output is still captured to run.json either way), and echoes
@@ -73,16 +77,21 @@ if (!agent) {
   process.exit(1);
 }
 
-const urlsFile = args.urls ?? 'urls/sample.txt';
 const outDir = args.out ?? 'reports';
 const concurrency = Number(args.concurrency ?? 2);
 const maxTurns = Number(args['max-turns'] ?? 80);
 const verbose = Boolean(args.verbose);
 
-const urls = (await readFile(urlsFile, 'utf8'))
-  .split('\n')
-  .map((l) => l.trim())
-  .filter((l) => l && !l.startsWith('#'));
+const urls = await collectUrls();
+if (!urls.length) {
+  console.error(
+    'No URLs to audit. Pass them as arguments or via a file:\n' +
+    '  npm run batch -- https://example.com https://example.org\n' +
+    '  npm run batch -- --urls urls/sample.txt\n' +
+    '(with neither, urls/sample.txt is used if it exists)'
+  );
+  process.exit(1);
+}
 
 console.log(`${urls.length} URLs via ${agentName}, concurrency ${concurrency}, output → ${outDir}/${agentName}/`);
 
@@ -165,6 +174,32 @@ function linePrinter(prefix, stream) {
   return print;
 }
 
+async function collectUrls() {
+  const candidates = [...args._];
+  const urlsFile = args.urls ?? (candidates.length ? null : 'urls/sample.txt');
+  if (urlsFile) {
+    let content = '';
+    try {
+      content = await readFile(urlsFile, 'utf8');
+    } catch (err) {
+      // The implicit sample.txt fallback is allowed to be absent;
+      // an explicitly requested file is not.
+      if (args.urls) {
+        console.error(`Could not read --urls file "${urlsFile}": ${err.message}`);
+        process.exit(1);
+      }
+    }
+    candidates.push(
+      ...content.split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'))
+    );
+  }
+  return candidates.filter((candidate) => {
+    if (URL.canParse(candidate)) return true;
+    console.warn(`skipping invalid URL: ${candidate}`);
+    return false;
+  });
+}
+
 function slugify(url) {
   return new URL(url).host.replace(/[^a-z0-9.-]/gi, '_');
 }
@@ -174,13 +209,16 @@ async function exists(path) {
 }
 
 function parseArgs(argv) {
-  const out = {};
+  const out = { _: [] };
+  const valueFlags = new Set(['urls', 'agent', 'concurrency', 'out', 'max-turns']);
   for (let i = 0; i < argv.length; i++) {
     if (argv[i].startsWith('--')) {
       const key = argv[i].slice(2);
       const next = argv[i + 1];
-      if (next && !next.startsWith('--')) { out[key] = next; i++; }
+      if (valueFlags.has(key) && next !== undefined) { out[key] = next; i++; }
       else out[key] = true;
+    } else {
+      out._.push(argv[i]);
     }
   }
   return out;

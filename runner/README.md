@@ -26,17 +26,20 @@ with a copy.)
 # Batch runner
 
 ```sh
-node runner/run-batch.mjs --urls urls/sample.txt --agent claude   # default
-node runner/run-batch.mjs --urls urls/sample.txt --agent gemini
-node runner/run-batch.mjs --urls urls/sample.txt --agent antigravity
-node runner/run-batch.mjs --urls urls/sample.txt --agent codex
-node runner/run-batch.mjs --urls urls/sample.txt --agent codex --dry-run  # print commands only
-node runner/run-batch.mjs --urls urls/sample.txt --verbose                # stream agent output live
+npm run batch -- https://example.com                       # URLs as arguments
+npm run batch -- --urls urls/sample.txt                    # …or from a file (the default file)
+npm run batch -- https://example.com --agent gemini        # claude | gemini | antigravity | codex
+npm run batch -- --urls urls/top-1k.txt --concurrency 4
+npm run batch -- https://example.com --agent codex --dry-run   # print commands only
+npm run batch -- https://example.com --verbose                 # stream agent output live
 ```
 
-`--verbose` echoes each spawned command and streams agent stdout/stderr with
-a `[site-slug]` prefix per line (`[slug!]` for stderr); `run.json` is written
-either way.
+(`npm run batch` is `node runner/run-batch.mjs`; everything after `--` is
+passed through.) URLs can mix positional arguments and a `--urls` file;
+invalid URLs are warned about and skipped, and the runner errors out if it
+ends up with none. `--verbose` echoes each spawned command and streams agent
+stdout/stderr with a `[site-slug]` prefix per line (`[slug!]` for stderr);
+`run.json` is written either way.
 
 Reports land in `reports/<agent>/<site>/`, so running the same URL list
 through several agents gives a side-by-side comparison —
