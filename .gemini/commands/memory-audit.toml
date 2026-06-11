@@ -1,0 +1,6 @@
+description = "Audit a URL for memory leaks (test plan → heap snapshots → memlab → report)"
+
+prompt = """
+Read the file .claude/skills/memory-audit/SKILL.md and follow its
+instructions exactly, with these arguments: {{args}}
+"""

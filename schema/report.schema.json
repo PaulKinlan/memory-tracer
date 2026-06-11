@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/paulkinlan/memory-tracer/schema/report.schema.json",
+  "title": "Memory audit report",
+  "type": "object",
+  "required": ["url", "auditedAt", "status", "scenarios", "findings"],
+  "properties": {
+    "url": { "type": "string", "format": "uri" },
+    "auditedAt": { "type": "string", "format": "date-time" },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "partial", "blocked", "error"],
+      "description": "blocked = bot wall / login required; partial = some scenarios failed"
+    },
+    "statusDetail": { "type": "string" },
+    "page": {
+      "type": "object",
+      "properties": {
+        "appType": { "type": "string", "enum": ["spa", "mpa", "hybrid", "unknown"] },
+        "framework": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "iterations", "result"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "iterations": { "type": "integer", "minimum": 1 },
+          "result": { "type": "string", "enum": ["clean", "leaky", "failed", "skipped"] },
+          "heapGrowthBytes": {
+            "type": "object",
+            "description": "Retained-size deltas between snapshots",
+            "properties": {
+              "baselineToTarget": { "type": "integer" },
+              "baselineToFinal": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "scenarioId", "category", "severity", "confidence", "summary", "suggestedFix"],
+        "properties": {
+          "id": { "type": "string" },
+          "scenarioId": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": [
+              "detached-dom",
+              "event-listener",
+              "timer-interval",
+              "unbounded-cache",
+              "observer",
+              "closure-retention",
+              "global-accumulation",
+              "worker-or-socket",
+              "library",
+              "other"
+            ]
+          },
+          "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+          "summary": { "type": "string" },
+          "growthBytesPerIteration": { "type": "integer" },
+          "leakedObjectClass": {
+            "type": "string",
+            "description": "Constructor/class name of the leaked objects, if identifiable"
+          },
+          "retainerTraceExcerpt": {
+            "type": "string",
+            "description": "Trimmed memlab retainer trace (max ~20 lines)"
+          },
+          "suspectedLibrary": { "type": "string" },
+          "suggestedFix": {
+            "type": "string",
+            "description": "Concrete remediation pattern, not a restatement of the problem"
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "wallClockSeconds": { "type": "number" },
+        "snapshotCount": { "type": "integer" }
+      }
+    }
+  }
+}

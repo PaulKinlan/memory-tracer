@@ -1,0 +1,48 @@
+{
+  "description": "Ground truth for evaluating the memory-audit loop against the playground. In leaky mode (default) every scenario below must be found with the right category; in ?mode=fixed the audit must report zero findings.",
+  "perIterationGrowthBytesApprox": 1048576,
+  "scenarios": [
+    {
+      "id": "detached-dom",
+      "category": "detached-dom",
+      "leakedObjectClass": "DetachedCardBatch",
+      "action": "Click 'Render new cards (discard old)' repeatedly",
+      "fix": "Stop retaining replaced nodes in the module-level array; let removed DOM be garbage collected"
+    },
+    {
+      "id": "event-listeners",
+      "category": "event-listener",
+      "leakedObjectClass": "TooltipScratchpad",
+      "action": "Click 'Open + close tooltip' repeatedly",
+      "fix": "Pass an AbortController signal to addEventListener and abort on tooltip close (or removeEventListener)"
+    },
+    {
+      "id": "timers",
+      "category": "timer-interval",
+      "leakedObjectClass": "PollerBuffer",
+      "action": "Create then discard the polling widget repeatedly",
+      "fix": "clearInterval when the widget is discarded"
+    },
+    {
+      "id": "unbounded-cache",
+      "category": "unbounded-cache",
+      "leakedObjectClass": "SearchResultCacheEntry",
+      "action": "Click 'Run search' repeatedly",
+      "fix": "Bound the cache (LRU eviction) or key it weakly"
+    },
+    {
+      "id": "observers",
+      "category": "observer",
+      "leakedObjectClass": "PanelMetrics",
+      "action": "Add panels then 'Remove all panels', repeatedly",
+      "fix": "Call observer.disconnect() when panels are removed and drop observer references"
+    },
+    {
+      "id": "spa-views",
+      "category": "closure-retention",
+      "leakedObjectClass": "DashboardModel",
+      "action": "Navigate away from #spa-views and back, repeatedly (route cycle)",
+      "fix": "Unsubscribe the bus listener in the view's unmount/teardown"
+    }
+  ]
+}

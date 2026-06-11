@@ -1,0 +1,42 @@
+[
+  {
+    "id": "idle-baseline",
+    "description": "Load page and stay idle to check background memory growth",
+    "setup": "Navigate to https://paul.kinlan.me/",
+    "action": "Wait 60 seconds",
+    "revert": "",
+    "iterations": 1
+  },
+  {
+    "id": "route-cycle",
+    "description": "Navigate from Home to Projects and back",
+    "setup": "Navigate to https://paul.kinlan.me/",
+    "action": "Click Projects link, wait, click Home link, wait",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "navigate-article",
+    "description": "Navigate from Home to an article page and back",
+    "setup": "Navigate to https://paul.kinlan.me/",
+    "action": "Click the first article link, wait, click Home link, wait",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "subscribe-input",
+    "description": "Interact with email subscription field",
+    "setup": "Navigate to https://paul.kinlan.me/",
+    "action": "Focus, type email, blur, and clear the input",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "scroll-homepage",
+    "description": "Scroll down and back up on the homepage",
+    "setup": "Navigate to https://paul.kinlan.me/",
+    "action": "Scroll to bottom, wait, scroll to top, wait",
+    "revert": "",
+    "iterations": 10
+  }
+]

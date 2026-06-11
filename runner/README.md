@@ -1,0 +1,96 @@
+# Running audits
+
+## Interactive (inside each CLI)
+
+From this repo's root, `/memory-audit <url>` works in every CLI — each one
+discovers it through its own project-config mechanism, all pointing at the
+single canonical [SKILL.md](../.claude/skills/memory-audit/SKILL.md):
+
+| CLI | Type it as | Wired up via |
+|---|---|---|
+| Claude Code | `/memory-audit http://localhost:8080` | `.claude/skills/memory-audit/` (native) |
+| Codex | `/memory-audit http://localhost:8080` | `.codex/skills/memory-audit` — a symlink to the Claude skill (Codex uses the same SKILL.md format) |
+| Gemini CLI | `/memory-audit http://localhost:8080` | `.gemini/commands/memory-audit.toml` (two-line wrapper, `{{args}}`) |
+| Antigravity | `/memory-audit http://localhost:8080` | `.agents/skills/memory-audit.md` (two-line wrapper) |
+
+If you'd rather not use the command, the raw prompt that works in *any*
+agent run from the repo root is:
+
+> Read the file .claude/skills/memory-audit/SKILL.md and follow its
+> instructions exactly, with these arguments: http://localhost:8080
+
+Only the Claude copy is real; the rest are pointers, so the methodology can't
+drift between agents. (Windows checkouts may need the Codex symlink replaced
+with a copy.)
+
+# Batch runner
+
+```sh
+node runner/run-batch.mjs --urls urls/sample.txt --agent claude   # default
+node runner/run-batch.mjs --urls urls/sample.txt --agent gemini
+node runner/run-batch.mjs --urls urls/sample.txt --agent antigravity
+node runner/run-batch.mjs --urls urls/sample.txt --agent codex
+node runner/run-batch.mjs --urls urls/sample.txt --agent codex --dry-run  # print commands only
+node runner/run-batch.mjs --urls urls/sample.txt --verbose                # stream agent output live
+```
+
+`--verbose` echoes each spawned command and streams agent stdout/stderr with
+a `[site-slug]` prefix per line (`[slug!]` for stderr); `run.json` is written
+either way.
+
+Reports land in `reports/<agent>/<site>/`, so running the same URL list
+through several agents gives a side-by-side comparison —
+`aggregate/aggregate.mjs` adds a per-agent breakdown when it sees more than
+one. Claude invokes the `/memory-audit` skill; the other CLIs are pointed at
+[.claude/skills/memory-audit/SKILL.md](../.claude/skills/memory-audit/SKILL.md)
+directly (it's plain markdown instructions any agent can follow).
+
+## Per-agent setup
+
+Every CLI needs the chrome-devtools MCP server registered in **its own**
+config — the runner doesn't (and mostly can't) inject it.
+
+| Agent | Binary | Headless invocation | MCP config |
+|---|---|---|---|
+| Claude Code | `claude` | `-p --output-format json --allowedTools …` | `.mcp.json` (in this repo) |
+| Gemini CLI | `gemini` | `-p --yolo --output-format json` | `.gemini/settings.json` (in this repo) |
+| Antigravity CLI | `agy` | `-p --dangerously-skip-permissions` | `mcp_config.json` (see Antigravity docs for location) |
+| Codex CLI | `codex` | `exec --json --sandbox workspace-write` | `.codex/config.toml` (in this repo; requires trusting the project) |
+
+Codex loads project-scoped config from [.codex/config.toml](../.codex/config.toml)
+(checked into this repo), but **only after you mark the project as trusted**
+in Codex — untrusted repos' `.codex/` layers are ignored. If you prefer, the
+same `[mcp_servers.chrome-devtools]` table works in the global
+`~/.codex/config.toml`.
+
+Antigravity `mcp_config.json` / any `mcpServers`-style config:
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--isolated", "--memory-debugging"]
+    }
+  }
+}
+```
+
+## Caveats
+
+- **Permissions:** `--yolo` (Gemini) and `--dangerously-skip-permissions`
+  (Antigravity) auto-approve *every* tool call. Fine against the playground;
+  for batch runs over arbitrary third-party sites, run inside a container or
+  VM. Claude's invocation uses a scoped `--allowedTools` list instead. Codex
+  uses the `workspace-write` sandbox — if Chrome can't reach the network from
+  it, fall back to `--dangerously-bypass-approvals-and-sandbox` inside a
+  container.
+- **Output:** `run.json` stores raw agent stdout (JSON for claude/gemini,
+  JSONL for codex, plain text for antigravity). The contract that matters is
+  the same for all agents: `report.json` in the site directory, validating
+  against `schema/report.schema.json`.
+- **Gemini CLI sunset:** for individual Pro/Ultra accounts Gemini CLI is
+  scheduled to sunset on 2026-06-18 in favour of Antigravity CLI — keep both
+  adapters until the dust settles.
+- Flags drift fast in all four CLIs; if an invocation fails, `--dry-run`
+  shows the exact command to debug.

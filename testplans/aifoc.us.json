@@ -1,0 +1,18 @@
+[
+  {
+    "id": "idle-baseline",
+    "description": "Load the home page and wait 60 seconds with no interaction to detect background timers, analytics, or speculation rules background tasks.",
+    "setup": "navigate to https://aifoc.us/",
+    "action": "wait",
+    "revert": "none",
+    "iterations": 1
+  },
+  {
+    "id": "speculative-hover",
+    "description": "Hover over article links sequentially to trigger the Speculation Rules prerender API. Repeat to test if speculative prerendering leaks memory.",
+    "setup": "navigate to https://aifoc.us/",
+    "action": "hover-links",
+    "revert": "none",
+    "iterations": 10
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "idle-baseline",
+    "description": "Load page and stay idle for 60s to capture background leaks",
+    "setup": "navigate_page to http://localhost:8080",
+    "action": "wait_for 60000ms",
+    "revert": "",
+    "iterations": 1
+  },
+  {
+    "id": "route-cycle",
+    "description": "Navigate away from #spa-views and back to test view unmount leaks",
+    "setup": "navigate_page to http://localhost:8080/#spa-views",
+    "action": "navigate_page to http://localhost:8080/#detached-dom followed by navigate_page to http://localhost:8080/#spa-views",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "detached-dom",
+    "description": "Click \"Render new cards (discard old)\" repeatedly",
+    "setup": "navigate_page to http://localhost:8080/#detached-dom",
+    "action": "click \"Render new cards (discard old)\"",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "event-listeners",
+    "description": "Click \"Open + close tooltip\" repeatedly",
+    "setup": "navigate_page to http://localhost:8080/#event-listeners",
+    "action": "click \"Open + close tooltip\" followed by wait_for 200ms",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "timers",
+    "description": "Create and discard the polling widget repeatedly",
+    "setup": "navigate_page to http://localhost:8080/#timers",
+    "action": "click \"Create polling widget\" followed by click \"Discard widget\"",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "unbounded-cache",
+    "description": "Click \"Run search\" repeatedly",
+    "setup": "navigate_page to http://localhost:8080/#unbounded-cache",
+    "action": "click \"Run search\"",
+    "revert": "",
+    "iterations": 10
+  },
+  {
+    "id": "observers",
+    "description": "Add panels then remove all panels, repeatedly",
+    "setup": "navigate_page to http://localhost:8080/#observers",
+    "action": "click \"Add panel\" followed by click \"Remove all panels\"",
+    "revert": "",
+    "iterations": 10
+  }
+]
