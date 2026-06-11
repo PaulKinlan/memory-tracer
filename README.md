@@ -70,3 +70,7 @@ node aggregate/aggregate.mjs
 ```
 
 See [PLAN.md](PLAN.md) for the roadmap and open questions.
+
+## License
+
+[Apache 2.0](LICENSE)

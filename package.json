@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "license": "Apache-2.0",
   "description": "Agent-driven memory leak auditing for websites via chrome-devtools-mcp",
   "scripts": {
     "playground": "npx -y serve playground -l 8080",
