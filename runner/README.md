@@ -73,7 +73,7 @@ Antigravity `mcp_config.json` / any `mcpServers`-style config:
   "mcpServers": {
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest", "--isolated", "--memory-debugging"]
+      "args": ["-y", "chrome-devtools-mcp", "--isolated", "--memory-debugging"]
     }
   }
 }

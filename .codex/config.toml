@@ -3,4 +3,4 @@
 
 [mcp_servers.chrome-devtools]
 command = "npx"
-args = ["-y", "chrome-devtools-mcp@latest", "--isolated", "--memory-debugging"]
+args = ["-y", "chrome-devtools-mcp", "--isolated", "--memory-debugging"]

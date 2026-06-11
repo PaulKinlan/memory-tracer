@@ -10,7 +10,8 @@
     "batch": "node runner/run-batch.mjs",
     "aggregate": "node aggregate/aggregate.mjs"
   },
-  "dependencies": {
+  "devDependencies": {
+    "chrome-devtools-mcp": "^1.2.0",
     "puppeteer": "^25.1.0"
   }
 }

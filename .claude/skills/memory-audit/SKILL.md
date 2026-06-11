@@ -18,6 +18,11 @@ specialized for producing structured reports.
 Throughout: NEVER read a raw `.heapsnapshot` file into context. They are tens
 of MB. Always analyze with memlab or the fallback comparison script.
 
+Drive the browser through the chrome-devtools MCP tools — do not write your
+own puppeteer/CDP automation. If you need an ad-hoc helper script, screenshot,
+or other temporary artifact, write it under `scratch/` (gitignored), never the
+repo root; deliverables belong only in the report directory and `testplans/`.
+
 ## Phase 1 — Recon and test plan
 
 Reuse `testplans/<host>.json` if it exists (regenerate only on `--replan`).
